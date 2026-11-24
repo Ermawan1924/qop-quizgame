@@ -19,7 +19,9 @@ export default function Join() {
 
   return (
     <main className="center">
-      <h1 className="logo">QuizRoom</h1>
+      <h1 className="logo" aria-label="QuizRoom">
+        {[...'QuizRoom'].map((c, i) => <span key={i} aria-hidden="true" className={`lt t${i % 4}`} style={{ animationDelay: `${i * 80}ms` }}>{c}</span>)}
+      </h1>
       <form className="panel" onSubmit={join}>
         <input inputMode="numeric" maxLength={6} placeholder="Game PIN" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} />
         <input maxLength={20} placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />

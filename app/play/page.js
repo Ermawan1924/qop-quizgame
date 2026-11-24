@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { api, usePoll, SHAPES, Board } from '../hooks';
+import { api, usePoll, SHAPES, Board, Podium, Confetti, TimerBar } from '../hooks';
 
 export default function Play() {
   const [ids, setIds] = useState(null);
@@ -30,9 +30,10 @@ export default function Play() {
     return (
       <main className="stack">
         <div className="top"><span>{v.qIndex + 1} / {v.total}</span><span className="timer">{Math.ceil(v.left / 1000)}</span></div>
+        <TimerBar key={v.qIndex} ms={v.left} />
         <h2 className="q">{v.q.text}</h2>
         {done ? (
-          <div className="center grow"><h2>Answer locked in</h2><p className="muted">Waiting for the others…</p></div>
+          <div className="center grow"><div className={`pick c${picked ?? me?.choice}`}>{SHAPES[picked ?? me?.choice]}</div><h2>Answer locked in</h2><p className="muted">Waiting for the others…</p></div>
         ) : (
           <div className="opts phone">
             {v.q.options.map((o, i) => (
@@ -47,7 +48,8 @@ export default function Play() {
   if (v.phase === 'results')
     return (
       <main className={`center ${me?.correct ? 'good' : 'bad'}`}>
-        <h1>{me?.answered ? (me.correct ? 'Correct' : 'Not this time') : 'No answer'}</h1>
+        {me?.correct && <Confetti count={70} />}
+        <h1 className="pop">{me?.answered ? (me.correct ? 'Correct' : 'Not this time') : 'No answer'}</h1>
         <p>{v.q.text}</p>
         <p><b>Answer: {SHAPES[v.correct]} {v.q.options[v.correct]}</b></p>
         {me?.correct && <p className="big">+{me.gained}</p>}
@@ -57,10 +59,11 @@ export default function Play() {
 
   return (
     <main className="center">
-      <h1>Finished</h1>
-      <p className="big">#{me?.rank}</p>
+      <Confetti count={me?.rank <= 3 ? 200 : 80} />
+      <h1 className="pop">{me?.rank === 1 ? 'You won!' : me?.rank <= 3 ? 'Top 3!' : 'Game over'}</h1>
+      <p className="big pop">#{me?.rank}</p>
       <p className="muted">{me?.name}, {me?.score} points</p>
-      <Board rows={v.board.slice(0, 3)} />
+      <Podium rows={v.board} />
     </main>
   );
 }

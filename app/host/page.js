@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { api, adm, getKey, usePoll, SHAPES, Board } from '../hooks';
+import { api, adm, getKey, usePoll, SHAPES, Board, Podium, Confetti, TimerBar } from '../hooks';
 
 export default function Host() {
   const [game, setGame] = useState(null);
@@ -57,8 +57,10 @@ export default function Host() {
   if (v.phase === 'final')
     return (
       <main className="wide center">
-        <h1>Final results</h1>
-        <Board rows={v.board} />
+        <Confetti count={220} />
+        <h1 className="pop">Final results</h1>
+        <Podium rows={v.board} />
+        <Board rows={v.board.slice(3)} start={3} />
         <button className="btn" onClick={() => { sessionStorage.removeItem('qr-game'); location.href = '/host'; }}>New game</button>
       </main>
     );
@@ -68,12 +70,13 @@ export default function Host() {
     <main className="wide stack">
       <div className="top"><span>{v.qIndex + 1} / {v.total}</span><span>{v.answered} / {v.count} answered</span>
         {v.phase === 'question' && <span className="timer">{Math.ceil(v.left / 1000)}</span>}</div>
+      {v.phase === 'question' && <TimerBar key={v.qIndex} ms={v.left} />}
       <h1 className="q">{v.q.text}</h1>
-      <div className="opts">
+      <div className="opts" key={v.qIndex}>
         {v.q.options.map((o, i) => (
           <div key={i} className={`opt c${i} ${v.phase === 'results' && v.correct !== i ? 'dim' : ''}`}>
             <span>{SHAPES[i]}</span> {o}
-            {v.phase === 'results' && <b className="cnt">{v.counts[i]}</b>}
+            {v.phase === 'results' && (<><i className="fill" style={{ width: `${(v.counts[i] / Math.max(1, ...v.counts)) * 100}%` }} /><b className="cnt">{v.counts[i]}{v.correct === i ? ' ✓' : ''}</b></>)}
           </div>
         ))}
       </div>
